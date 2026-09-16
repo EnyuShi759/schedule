@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="施恩雨的课表">
+<meta name="theme-color" content="#eef1f6">
+<meta name="description" content="施恩雨 2026-2027学年第一学期课表">
+<title>施恩雨的课表</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232563eb'/%3E%3Ctext x='50' y='70' font-size='52' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3E%E8%AF%BE%3C/text%3E%3C/svg%3E">
+<!-- 想给手机主屏幕换自定义图标：上传一张 180x180 的 png 命名为 icon.png，再把这行取消注释
+<link rel="apple-touch-icon" href="icon.png">
+-->
+<style>
+:root{
+  --bg:#eef1f6; --surface:#fff; --surface2:#f1f3f7;
+  --text:#111827; --text2:#6b7280; --text3:#9aa3b2;
+  --line:rgba(0,0,0,.07); --hdr:rgba(255,255,255,.86);
+  --accent:#2563eb;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0d1117; --surface:#161b22; --surface2:#21262d;
+    --text:#e6edf3; --text2:#8b949e; --text3:#6e7681;
+    --line:rgba(255,255,255,.09); --hdr:rgba(13,17,23,.82);
+    --accent:#4f8cff;
+    --shadow:0 1px 3px rgba(0,0,0,.5);
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:none;
+  padding-bottom:calc(28px + env(safe-area-inset-bottom));
+}
+header{
+  position:sticky;top:0;z-index:50;
+  background:var(--hdr);
+  backdrop-filter:blur(16px) saturate(180%);
+  -webkit-backdrop-filter:blur(16px) saturate(180%);
+  border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top);
+}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:9px 16px 2px}
+.bar .nm{font-size:16px;font-weight:700;letter-spacing:.3px}
+.bar .sub{font-size:10.5px;color:var(--text3);margin-top:2px;letter-spacing:.2px}
+.today-btn{
+  border:none;font-family:inherit;font-size:12.5px;font-weight:600;
+  color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);
+  padding:7px 13px;border-radius:100px;
+}
+.today-btn:active{opacity:.6}
+.weeknav{display:flex;align-items:center;justify-content:center;gap:8px;padding:2px 16px 8px}
+.weeknav .nav{
+  width:36px;height:36px;border:none;border-radius:50%;background:transparent;
+  color:var(--text2);font-size:22px;line-height:1;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;
+}
+.weeknav .nav:active{background:var(--surface2)}
+#weekLabel{
+  font-size:17px;font-weight:700;letter-spacing:.5px;
+  min-width:104px;text-align:center;padding:5px 10px;border-radius:10px;
+  font-variant-numeric:tabular-nums;user-select:none;
+}
+#weekLabel:active{background:var(--surface2)}
+.daytabs{display:flex;gap:6px;padding:0 12px 9px;overflow-x:auto;scrollbar-width:none}
+.daytabs::-webkit-scrollbar{display:none}
+.daytabs button{
+  flex:0 0 auto;border:none;font-family:inherit;font-size:12.5px;font-weight:600;
+  color:var(--text2);background:var(--surface2);
+  padding:6px 13px;border-radius:100px;transition:background .15s,color .15s;
+}
+.daytabs button.active{background:var(--accent);color:#fff}
+main{padding:12px 12px 0}
+.day{margin-bottom:16px;scroll-margin-top:calc(122px + env(safe-area-inset-top))}
+.day-head{display:flex;align-items:center;gap:8px;padding:0 4px 7px}
+.day-head .dn{font-size:14.5px;font-weight:700}
+.day-head .badge{
+  font-size:10px;font-weight:700;color:#fff;background:#ef4444;
+  padding:2px 6px;border-radius:5px;letter-spacing:.5px;
+}
+.day-head .cnt{margin-left:auto;font-size:11.5px;color:var(--text3)}
+.course{
+  position:relative;background:var(--surface);border-radius:14px;
+  padding:11px 14px 11px 17px;margin-bottom:8px;
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.course::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.c-name{font-size:15px;font-weight:650;line-height:1.35;letter-spacing:.2px}
+.c-line{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.45}
+.c-line .loc{color:var(--text);font-weight:600}
+.c-line .tnum{font-variant-numeric:tabular-nums}
+.empty{
+  background:var(--surface);border-radius:14px;padding:14px;
+  text-align:center;font-size:12.5px;color:var(--text3);box-shadow:var(--shadow);
+}
+.sheet-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:100;
+  opacity:0;pointer-events:none;transition:opacity .22s;
+}
+.sheet-bg.show{opacity:1;pointer-events:auto}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:101;
+  background:var(--surface);border-radius:20px 20px 0 0;
+  padding:18px 16px calc(20px + env(safe-area-inset-bottom));
+  transform:translateY(110%);
+  transition:transform .3s cubic-bezier(.32,.72,0,1);
+  max-height:72vh;overflow:auto;
+}
+.sheet.show{transform:translateY(0)}
+.sheet-title{font-size:14.5px;font-weight:700;text-align:center;margin-bottom:14px}
+.sheet-title span{color:var(--text3);font-weight:500;font-size:12px}
+.week-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.week-grid button{
+  aspect-ratio:1/1;border:none;border-radius:12px;background:var(--surface2);
+  font-family:inherit;font-size:14px;font-weight:650;color:var(--text);
+  font-variant-numeric:tabular-nums;
+}
+.week-grid button.cur{background:var(--accent);color:#fff}
+.week-grid button:active{opacity:.65}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <div>
+      <div class="nm">施恩雨的课表</div>
+      <div class="sub">机械工程与智能制造学院 · 2026-2027学年第一学期</div>
+    </div>
+    <button class="today-btn" id="todayBtn">今天</button>
+  </div>
+  <div class="weeknav">
+    <button class="nav" id="prevWeek" aria-label="上一周">‹</button>
+    <div id="weekLabel">第 1 周</div>
+    <button class="nav" id="nextWeek" aria-label="下一周">›</button>
+  </div>
+  <nav class="daytabs" id="dayTabs"></nav>
+</header>
+
+<main id="main"></main>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-title">选择周次 <span>· 左右也能滑动切换</span></div>
+  <div class="week-grid" id="weekGrid"></div>
+</div>
+
+<script>
+const DAY_NAMES = ['','周一','周二','周三','周四','周五','周六','周日'];
+const PERIOD = [
+  null,
+  ['08:00','08:45'], ['08:50','09:35'],
+  ['10:00','10:45'], ['10:50','11:35'],
+  ['13:30','14:15'], ['14:20','15:05'],
+  ['15:30','16:15'], ['16:20','17:05'],
+  ['18:00','18:45'], ['18:50','19:35'],
+  ['19:40','20:25'], ['20:30','21:15']
+];
+const COLORS = {
+  '现代制造技术':'#2563eb',
+  '有限元分析与应用':'#7c3aed',
+  '振动分析':'#ea580c',
+  '现代控制工程':'#059669',
+  '数值分析':'#0891b2',
+  '第一外国语1':'#db2777',
+  '工程伦理':'#4f46e5',
+  '新时代中国特色社会主义理论与实践研究':'#dc2626'
+};
+const COURSES = [
+  { name:'现代制造技术', teacher:'于爱兵、施晨淳、马剑强、彭文飞', room:'东区8-404',
+    slots:[
+      {day:1,start:1,end:2,weeks:[[2,9]]},
+      {day:3,start:3,end:4,weeks:[[2,9]]}
+    ]},
+  { name:'有限元分析与应用', teacher:'黄海波', room:'东区8-306',
+    slots:[
+      {day:2,start:1,end:2,weeks:[[2,7]]},
+      {day:3,start:9,end:10,weeks:[[2,7]]},
+      {day:2,start:9,end:10,weeks:[[16,17]],room:'叶耀珍楼103'}
+    ]},
+  { name:'振动分析', teacher:'李科斌', room:'东区8-402',
+    slots:[
+      {day:1,start:5,end:6,weeks:[[10,17]]},
+      {day:3,start:3,end:4,weeks:[[10,17]]}
+    ]},
+  { name:'现代控制工程', teacher:'王睿', room:'东区8-305',
+    slots:[
+      {day:1,start:5,end:6,weeks:[[2,9]]},
+      {day:2,start:9,end:10,weeks:[[3,9]]},
+      {day:1,start:11,end:12,weeks:[[3,3]]}
+    ]},
+  { name:'数值分析', teacher:'张勤号、任潞', room:'东区8-404',
+    slots:[
+      {day:2,start:11,end:12,weeks:[[2,9]]},
+      {day:3,start:11,end:12,weeks:[[2,9]]}
+    ]},
+  { name:'第一外国语1', teacher:'刘春慧', room:'叶耀珍楼206',
+    slots:[{day:4,start:3,end:4,weeks:[[2,17]]}]},
+  { name:'工程伦理', teacher:'谢重阳', room:'东区8-303',
+    slots:[{day:5,start:3,end:4,weeks:[[10,17]]}]},
+  { name:'新时代中国特色社会主义理论与实践研究', teacher:'郝瑞琪', room:'东区8-305',
+    slots:[{day:2,start:7,end:8,weeks:[[2,17]]}]}
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const inWeeks = (ranges, w) => ranges.some(([a,b]) => w >= a && w <= b);
+const todayIdx = () => { const d = new Date().getDay(); return d === 0 ? 7 : d; };
+
+function getCourses(day, week){
+  const out = [];
+  for (const c of COURSES){
+    for (const s of c.slots){
+      if (s.day !== day) continue;
+      if (!inWeeks(s.weeks, week)) continue;
+      out.push({ name:c.name, teacher:c.teacher, room:s.room || c.room, start:s.start, end:s.end });
+    }
+  }
+  return out.sort((a,b) => a.start - b.start);
+}
+
+let week = parseInt(localStorage.getItem('nbu_week') || '1', 10);
+if (!(week >= 1)) week = 1;
+
+const mainEl = document.getElementById('main');
+const tabsEl = document.getElementById('dayTabs');
+const weekLabel = document.getElementById('weekLabel');
+
+function renderTabs(){
+  let h = '';
+  for (let d = 1; d <= 7; d++){
+    h += `<button data-day="${d}"${d === todayIdx() ? ' class="active"' : ''}>${DAY_NAMES[d]}</button>`;
+  }
+  tabsEl.innerHTML = h;
+}
+
+function render(){
+  const t = todayIdx();
+  let html = '';
+  for (let d = 1; d <= 7; d++){
+    const list = getCourses(d, week);
+    html += `<section class="day" id="day-${d}" data-day="${d}">`;
+    html += `<div class="day-head"><span class="dn">${DAY_NAMES[d]}</span>`;
+    if (d === t) html += `<span class="badge">今天</span>`;
+    html += `<span class="cnt">${list.length ? list.length + ' 门课' : '无课'}</span></div>`;
+    if (!list.length){
+      html += `<div class="empty">这天没有课</div>`;
+    } else {
+      for (const it of list){
+        const color = COLORS[it.name] || '#2563eb';
+        const time = PERIOD[it.start][0] + '–' + PERIOD[it.end][1];
+        const period = it.start === it.end ? `第${it.start}节` : `第${it.start}-${it.end}节`;
+        html += `<article class="course" style="--c:${color}">
+          <div class="c-name">${esc(it.name)}</div>
+          <div class="c-line"><span class="tnum">${time}</span> · ${period}</div>
+          <div class="c-line"><span class="loc">${esc(it.room)}</span> · ${esc(it.teacher)}</div>
+        </article>`;
+      }
+    }
+    html += `</section>`;
+  }
+  mainEl.innerHTML = html;
+  updateActiveTab();
+}
+
+function updateActiveTab(){
+  const y = window.scrollY + 150;
+  let active = 1;
+  document.querySelectorAll('.day').forEach(sec => {
+    if (sec.offsetTop <= y) active = +sec.dataset.day;
+  });
+  let changed = false;
+  tabsEl.querySelectorAll('button').forEach(b => {
+    const on = +b.dataset.day === active;
+    if (on && !b.classList.contains('active')) changed = true;
+    b.classList.toggle('active', on);
+  });
+  if (changed){
+    const cur = tabsEl.querySelector('button.active');
+    if (cur) cur.scrollIntoView({ inline:'center', block:'nearest', behavior:'smooth' });
+  }
+}
+
+function setWeek(w, scrollToToday){
+  w = Math.max(1, Math.min(30, w));
+  week = w;
+  localStorage.setItem('nbu_week', String(w));
+  weekLabel.textContent = `第 ${w} 周`;
+  render();
+  buildGrid();
+  if (scrollToToday){
+    requestAnimationFrame(() => {
+      const el = document.getElementById('day-' + todayIdx());
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  }
+}
+
+const sheet = document.getElementById('sheet');
+const sheetBg = document.getElementById('sheetBg');
+const weekGrid = document.getElementById('weekGrid');
+
+function buildGrid(){
+  let h = '';
+  for (let i = 1; i <= 25; i++){
+    h += `<button data-w="${i}"${i === week ? ' class="cur"' : ''}>${i}</button>`;
+  }
+  weekGrid.innerHTML = h;
+}
+function openSheet(){ buildGrid(); sheet.classList.add('show'); sheetBg.classList.add('show'); }
+function closeSheet(){ sheet.classList.remove('show'); sheetBg.classList.remove('show'); }
+
+weekGrid.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  setWeek(+b.dataset.w, true);
+  closeSheet();
+});
+sheetBg.addEventListener('click', closeSheet);
+
+document.getElementById('prevWeek').addEventListener('click', () => setWeek(week - 1, true));
+document.getElementById('nextWeek').addEventListener('click', () => setWeek(week + 1, true));
+weekLabel.addEventListener('click', openSheet);
+document.getElementById('todayBtn').addEventListener('click', () => {
+  const el = document.getElementById('day-' + todayIdx());
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+});
+tabsEl.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  const el = document.getElementById('day-' + b.dataset.day);
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+});
+
+let ticking = false;
+window.addEventListener('scroll', () => {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => { ticking = false; updateActiveTab(); });
+}, { passive:true });
+
+let sx = 0, sy = 0, st = 0;
+document.addEventListener('touchstart', e => {
+  if (e.touches.length !== 1) return;
+  sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now();
+}, { passive:true });
+document.addEventListener('touchend', e => {
+  if (!st) return;
+  const dx = e.changedTouches[0].clientX - sx;
+  const dy = e.changedTouches[0].clientY - sy;
+  if (Date.now() - st < 600 && Math.abs(dx) > 70 && Math.abs(dy) < 45){
+    setWeek(week + (dx < 0 ? 1 : -1), true);
+  }
+  st = 0;
+}, { passive:true });
+
+weekLabel.textContent = `第 ${week} 周`;
+renderTabs();
+render();
+setTimeout(() => {
+  const el = document.getElementById('day-' + todayIdx());
+  if (el) el.scrollIntoView({ block:'start' });
+}, 60);
+</script>
+</body>
+</html>
